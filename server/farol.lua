@@ -10,13 +10,19 @@ function Farol:new()
     return farol
 end
 
-function Farol:get(path, fn)
-    self.routes["GET " .. path] = fn
+function Farol:resource(controllerPath)
+    local controller = require(controllerPath)
+    return function(config)
+        if controller["index"] then
+            self.routes["GET " .. config.path] = controller["index"]
+        end
+    end
 end
 
 function Farol:listen(port)
     local server = assert(socket.bind("*", tonumber(port)), "Failed to init server on port " .. port)
     print("Server running on http://localhost:" .. port)
+
     local http = require "server.http"
 
     while true do
@@ -24,14 +30,15 @@ function Farol:listen(port)
         client:settimeout(1)
 
         local request, err = client:receive()
-        print(request)
         local method, path = request:match("^(%w+)%s+(%S+)")
+        print(method, path)
 
         if self.routes[method .. " " .. path] then
             local response = self.routes[method .. " " .. path]()
             http:body(response)
             client:send(http:build())
         end
+
         client:close()
     end
 end
