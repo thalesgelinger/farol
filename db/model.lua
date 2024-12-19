@@ -11,6 +11,28 @@ function Model:new(model)
         }
     end
 
+    function model.find() end
+
+    function model.find_by() end
+
+    function model.where() end
+
+    function model.new() end
+
+    function model.create() end
+
+    function model.update() end
+
+    function model.destroy() end
+
+    function model.valid() end
+
+    function model.save() end
+
+    function model.count() end
+
+    function model.group() end
+
     return model
 end
 

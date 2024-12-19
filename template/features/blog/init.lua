@@ -3,27 +3,34 @@ local Blog = require "features.blog.model"
 local BlogController = {}
 BlogController.__index = BlogController
 
--- GET /blog
+-- GET /blogs
 function BlogController:index()
     return Blog.all()
 end
 
--- GET /blog/:id
-function BlogController:show() end
+-- GET /blogs/:id
+--- @param params table
+function BlogController:show(params)
+    return "This is the id: " .. params.id
+end
 
--- GET /blog/new html form for new resource
-function BlogController:new() end
+-- GET /blogs/new html form for new resource
+function BlogController:new()
+    return "<h1> Soon we will have a new page here  </h1>"
+end
 
--- POST /blog
+-- POST /blogs
 function BlogController:create() end
 
--- GET /blog html form for edit resource
-function BlogController:edit() end
+-- GET /blogs/:id/edit html form for edit resource
+function BlogController:edit(params)
+    return "<h1> Soon we will have an edit page here " .. params.id .. " </h1>"
+end
 
--- PATCH/PUT /blog
+-- PATCH/PUT /blogs
 function BlogController:update() end
 
--- DELETE /blog/:id
+-- DELETE /blogs/:id
 function BlogController:destroy() end
 
 return BlogController

@@ -3,23 +3,31 @@ require "server.utils"
 local Http = {
     status = "200 OK\r\n",
     headers = {},
-    body = ""
+    content = ""
 }
 
 Http.__index = Http
 
 function Http:body(content)
     if type(content) == "table" then
+        if content.type == "image" then
+            table.insert(self.headers, {
+                ["Content-Type"] = "image/x-icon"
+            })
+            self.content = content.image
+            return
+        end
+
         table.insert(self.headers, {
             ["Content-Type"] = "application/json"
         })
-        self.body = table.stringify(content)
+        self.content = table.stringify(content)
         return
     end
     table.insert(self.headers, {
         ["Content-Type"] = "text/html; charset=UTF-8"
     })
-    self.body = content
+    self.content = content
 end
 
 function Http:build()
@@ -33,9 +41,9 @@ function Http:build()
 
     return "HTTP/1.1 " .. self.status
         .. headers
-        .. "Content-Length: " .. #self.body .. "\r\n"
+        .. "Content-Length: " .. #self.content .. "\r\n"
         .. "\r\n"
-        .. self.body
+        .. self.content
 end
 
 return Http
