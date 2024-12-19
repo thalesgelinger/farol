@@ -5,7 +5,6 @@ local Farol = require "server.farol"
 
 local app = Farol:new()
 
-
 app:resource "features.blog" {
     path = "/blogs",
     -- The idea here is to create sub resources

@@ -1,0 +1,13 @@
+<html>
+<head>
+    <title><@= title @></title>
+</head>
+<body>
+    <h1>Hello, <@= user @>!</h1>
+    <ul>
+        <@ for i, item in ipairs(items) do @>
+            <li><@= i .. ": " .. item @></li>
+        <@ end @>
+    </ul>
+</body>
+</html>
