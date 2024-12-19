@@ -1,3 +1,4 @@
+local cjson = require "cjson"
 require "server.utils"
 
 local Http = {
@@ -21,13 +22,15 @@ function Http:body(content)
         table.insert(self.headers, {
             ["Content-Type"] = "application/json"
         })
-        self.content = table.stringify(content)
+        self.content = cjson.encode(content)
         return
     end
     table.insert(self.headers, {
         ["Content-Type"] = "text/html; charset=UTF-8"
     })
-    self.content = content
+    if content then
+        self.content = content
+    end
 end
 
 function Http:build()

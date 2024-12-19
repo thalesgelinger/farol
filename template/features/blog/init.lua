@@ -9,9 +9,9 @@ function BlogController:index()
 end
 
 -- GET /blogs/:id
---- @param params table
-function BlogController:show(params)
-    return "This is the id: " .. params.id
+--- @param req table
+function BlogController:show(req)
+    return Blog.find_by({ id = req.params.id })
 end
 
 -- GET /blogs/new html form for new resource
@@ -20,17 +20,23 @@ function BlogController:new()
 end
 
 -- POST /blogs
-function BlogController:create() end
+function BlogController:create(req)
+    Blog.create(req.body)
+end
 
 -- GET /blogs/:id/edit html form for edit resource
-function BlogController:edit(params)
-    return "<h1> Soon we will have an edit page here " .. params.id .. " </h1>"
+function BlogController:edit(req)
+    return "<h1> Soon we will have an edit page here " .. req.params.id .. " </h1>"
 end
 
 -- PATCH/PUT /blogs
-function BlogController:update() end
+function BlogController:update(req)
+    Blog.update(req.body)
+end
 
 -- DELETE /blogs/:id
-function BlogController:destroy() end
+function BlogController:destroy(req)
+    Blog.destroy(req.params.id)
+end
 
 return BlogController

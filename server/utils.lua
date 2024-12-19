@@ -45,5 +45,3 @@ function table.stringify(tbl)
 
     return serialize(tbl)
 end
-
-

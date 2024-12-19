@@ -1,4 +1,5 @@
 local socket = require("socket")
+local cjson = require "cjson"
 
 local Farol = {
     routes = {
@@ -40,6 +41,19 @@ function Farol:resource(controllerPath)
         if controller["edit"] then
             self.routes["GET" .. config.path .. "/:id/edit"] = controller["edit"]
         end
+
+        if controller["create"] then
+            self.routes["POST" .. config.path] = controller["create"]
+        end
+
+        if controller["update"] then
+            self.routes["PATCH" .. config.path] = controller["update"]
+            self.routes["PUT" .. config.path] = controller["update"]
+        end
+
+        if controller["destroy"] then
+            self.routes["DELETE" .. config.path .. "/:id"] = controller["destroy"]
+        end
     end
 end
 
@@ -49,7 +63,9 @@ end
 --- @return table
 function Farol:match_route(method, path)
     if self.routes[method .. path] then
-        return self.routes[method .. path], {}
+        return function(p)
+            return self.routes[method .. path](self, p)
+        end, {}
     end
 
     -- Function to split a string into parts based on "/"
@@ -143,14 +159,40 @@ function Farol:listen(port)
         end
 
         if request then
+            local req = {}
+
+            local headers = {}
+            while true do
+                local line = client:receive()
+                if not line or line == "" then break end -- End of headers
+                local key, value = line:match("^(.-):%s*(.+)")
+                if key and value then
+                    headers[key:lower()] = value
+                end
+            end
+
+            req.headers = headers
+
+            local body = nil
+            if headers["content-length"] then
+                local content_length = tonumber(headers["content-length"])
+                if content_length then
+                    body = client:receive(content_length)
+                end
+            end
+
+
             local method, path = request:match("^(%w+)%s+(%S+)")
 
-            print(method, path)
-
             local matched_route, params = self:match_route(method, path)
+            req.params = params
+
+            if body then
+                req.body = cjson.decode(body)
+            end
 
             if matched_route then
-                local response = matched_route(params)
+                local response = matched_route(req)
                 http:body(response)
                 client:send(http:build())
             else
