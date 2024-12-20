@@ -1,11 +1,17 @@
 -- Function to parse and render the template
-function renderTemplate(template, context)
+function renderTemplate(templatePath, context)
+    local file, err = io.open(templatePath, "r")
+
+    if not file then
+        print("Error opening file:", err)
+        return
+    end
+
+    local template = file:read("*a")
     -- Replace placeholders like <@= variable @> with the value from context
     local function replacePlaceholders(str)
         return str:gsub("<@=%s*(.-)%s*@>", function(key)
             -- Debug: Print the key that we are extracting
-            print("Replacing placeholder for key:", key)
-
             -- Check if the key exists in context and return the value or an empty string
             return tostring(context[key]) or "undefined"
         end)
@@ -15,9 +21,6 @@ function renderTemplate(template, context)
     local function handleLoops(str)
         return str:gsub("<@ for (.-) in (.-) do @>(.-)<@ end @>", function(loop_vars, list_expr, loop_content)
             -- Debugging
-            print("Handling loop with variables:", loop_vars)
-            print("Over expression:", list_expr)
-            print("Loop content:", loop_content)
 
             -- Create a custom environment for evaluating the list expression
             local env = setmetatable({}, { __index = function(_, k) return context[k] or _G[k] end })
@@ -70,35 +73,18 @@ function renderTemplate(template, context)
     return template
 end
 
--- Example usage:
+local function getScriptDirectory()
+    local info = debug.getinfo(1, "S")                -- Get the script info
+    local path = info.source:match("^@(.+/)") or "./" -- Extract the directory
+    return path
+end
 
--- Context with dynamic data
-local context = {
+local scriptDir = getScriptDirectory()
+local filePath = scriptDir .. "example.elua"
+local renderedHTML = renderTemplate(filePath, {
     title = "My Page",
     user = "John",
     items = { "Apple", "Banana", "Cherry" }
-}
+})
 
--- Template string with placeholders and loop
-local template = [[
-<html>
-<head>
-    <title><@= title @></title>
-</head>
-<body>
-    <h1>Hello, <@= user @>!</h1>
-    <ul>
-        <@ for i, f in ipairs(items) do @>
-            <li><@= i @>: <@= f @></li>
-        <@ end @>
-    </ul>
-</body>
-</html>
-]]
-
--- Render the template with the context data
-local renderedHTML = renderTemplate(template, context)
-
--- Print the result
 print(renderedHTML)
-
