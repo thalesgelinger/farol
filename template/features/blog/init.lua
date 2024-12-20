@@ -1,4 +1,6 @@
-local Blog = require "features.blog.model"
+Blog = require "features.blog.model"
+local Render = require "server.render"
+local utils = require "server.utils"
 
 local BlogController = {}
 BlogController.__index = BlogController
@@ -16,7 +18,11 @@ end
 
 -- GET /blogs/new html form for new resource
 function BlogController:new()
-    return "<h1> Soon we will have a new page here  </h1>"
+    return Render.template("features/blog/view.elua", {
+        title = "My Page",
+        user = "John",
+        items = { "Apple", "Banana", "Cherry"}
+    })
 end
 
 -- POST /blogs

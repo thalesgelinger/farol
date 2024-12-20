@@ -1,5 +1,6 @@
--- Function to parse and render the template
-function renderTemplate(templatePath, context)
+local Render = {}
+
+function Render.template(templatePath, context)
     local file, err = io.open(templatePath, "r")
 
     if not file then
@@ -73,18 +74,4 @@ function renderTemplate(templatePath, context)
     return template
 end
 
-local function getScriptDirectory()
-    local info = debug.getinfo(1, "S")                -- Get the script info
-    local path = info.source:match("^@(.+/)") or "./" -- Extract the directory
-    return path
-end
-
-local scriptDir = getScriptDirectory()
-local filePath = scriptDir .. "example.elua"
-local renderedHTML = renderTemplate(filePath, {
-    title = "My Page",
-    user = "John",
-    items = { "Apple", "Banana", "Cherry" }
-})
-
-print(renderedHTML)
+return Render

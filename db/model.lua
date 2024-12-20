@@ -4,10 +4,6 @@ local Model = {}
 local data = {}
 
 function Model:new(model)
-    for key, value in pairs(model) do
-        print("key: ", key, "value: ", value)
-    end
-
     function model.all()
         return data
     end
@@ -77,4 +73,7 @@ local Types = {
     text = "text",
 }
 
-return Model, Types
+return {
+    Model = Model,
+    Types = Types
+}

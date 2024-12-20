@@ -45,3 +45,12 @@ function table.stringify(tbl)
 
     return serialize(tbl)
 end
+
+local Utils = {}
+
+function Utils:get_script_dir()
+    local path = debug.getinfo(1, "S").source:sub(2) -- Get the script's full path (removing leading `@`)
+    return path:match("^(.*[/\\])")                  -- Extract the directory from the full path
+end
+
+return Utils
