@@ -1,45 +1,85 @@
-local function render_template(template, context)
-    local output = {}
-    local env = setmetatable({}, { __index = context })
+-- Function to parse and render the template
+function renderTemplate(template, context)
+    -- Replace placeholders like <@= variable @> with the value from context
+    local function replacePlaceholders(str)
+        return str:gsub("<@=%s*(.-)%s*@>", function(key)
+            -- Debug: Print the key that we are extracting
+            print("Replacing placeholder for key:", key)
 
-    -- Replace `<@= expression @>` with Lua code that appends the result to `output`
-    template = template:gsub("<@=(.-)@>", function(code)
-        print("CODE: ", code)
-        return code
-    end)
-
-    print(template)
-
-    -- Replace `<@ ... @>` with the Lua code itself
-    template = template:gsub("<@(.-)@>", function(code)
-        return code
-    end)
-
-    print(template)
-
-    -- Wrap the transformed template in Lua code to execute
-    local lua_code = string.format([[
-        local output = ...
-        %s
-        return table.concat(output)
-    ]], template)
-
-    -- Compile the Lua code
-    local func, err = load(lua_code, "template", "t", env)
-    if not func then
-        error("Template compilation error: " .. err)
+            -- Check if the key exists in context and return the value or an empty string
+            return tostring(context[key]) or "undefined"
+        end)
     end
 
-    -- Execute the compiled Lua code
-    local success, result = pcall(func, output)
-    if not success then
-        error("Template execution error: " .. result)
+    -- Function to handle loops dynamically
+    local function handleLoops(str)
+        return str:gsub("<@ for (.-) in (.-) do @>(.-)<@ end @>", function(loop_vars, list_expr, loop_content)
+            -- Debugging
+            print("Handling loop with variables:", loop_vars)
+            print("Over expression:", list_expr)
+            print("Loop content:", loop_content)
+
+            -- Create a custom environment for evaluating the list expression
+            local env = setmetatable({}, { __index = function(_, k) return context[k] or _G[k] end })
+
+            -- Add standard functions like ipairs to the environment
+            env.ipairs = ipairs
+            env.pairs = pairs
+
+            -- Extract the actual table from the list expression
+            local list_name = list_expr:match("%((.-)%)")
+            if not list_name or not context[list_name] then
+                print("Error: List not found in context:", list_name)
+                return ""
+            end
+            local list = context[list_name]
+
+            if type(list) ~= "table" then
+                print("Error: List is not a table:", list_name)
+                return "" -- If the list is not a table, return an empty string
+            end
+
+            -- Split the loop variables (e.g., "i, item" -> { "i", "item" })
+            local loop_var_names = {}
+            for var in loop_vars:gmatch("([^,]+)") do
+                table.insert(loop_var_names, var:match("^%s*(.-)%s*$")) -- Trim whitespace
+            end
+
+            -- Generate the loop content
+            local result = ""
+            for k, v in ipairs(list) do
+                -- Prepare a table for the loop's scope
+                local loop_scope = { [loop_var_names[1]] = k, [loop_var_names[2]] = v }
+
+                -- Replace placeholders dynamically using the loop's scope
+                local content = loop_content:gsub("<@=%s*(.-)%s*@>", function(key)
+                    return tostring(loop_scope[key] or context[key] or "undefined")
+                end)
+                result = result .. content
+            end
+            return result
+        end)
     end
 
-    return result
+    -- First, handle loops
+    template = handleLoops(template)
+
+    -- Then, replace placeholders
+    template = replacePlaceholders(template)
+
+    return template
 end
 
--- Example usage
+-- Example usage:
+
+-- Context with dynamic data
+local context = {
+    title = "My Page",
+    user = "John",
+    items = { "Apple", "Banana", "Cherry" }
+}
+
+-- Template string with placeholders and loop
 local template = [[
 <html>
 <head>
@@ -48,21 +88,17 @@ local template = [[
 <body>
     <h1>Hello, <@= user @>!</h1>
     <ul>
-        <@ for i, item in ipairs(items) do @>
-            <li><@= i .. ": " .. item @></li>
+        <@ for i, f in ipairs(items) do @>
+            <li><@= i @>: <@= f @></li>
         <@ end @>
     </ul>
 </body>
 </html>
 ]]
 
--- Context table
-local context = {
-    title = "Welcome Page",
-    user = "John Doe",
-    items = { "Item 1", "Item 2", "Item 3" },
-}
+-- Render the template with the context data
+local renderedHTML = renderTemplate(template, context)
 
--- Render template
-local output = render_template(template, context)
-print(output)
+-- Print the result
+print(renderedHTML)
+
