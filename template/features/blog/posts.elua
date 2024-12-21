@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>Blog</title>
+</head>
+<body>
+    <h1>Posts</h1>
+    <ul>
+        <@ for i, post in ipairs(posts) do @>
+            <li>
+                <h2><@= post.title @></h2>
+                <span><@= post.body @></span>
+            </li>
+        <@ end @>
+    </ul>
+    <a href="/blogs/new">New Post</a>
+</body>
+</html>

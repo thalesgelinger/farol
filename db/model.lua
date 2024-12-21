@@ -28,6 +28,9 @@ function Model:new(model)
     function model.create(new)
         new.id = #data + 1
         table.insert(data, new)
+        return {
+            id = new.id
+        }
     end
 
     function model.update(new)

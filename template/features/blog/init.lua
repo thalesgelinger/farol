@@ -6,27 +6,27 @@ BlogController.__index = BlogController
 
 -- GET /blogs
 function BlogController:index()
-    return Blog.all()
+    self.posts = Blog.all()
+    return template("features/blog/posts.elua", self)
 end
 
 -- GET /blogs/:id
 --- @param req table
 function BlogController:show(req)
-    return Blog.find_by({ id = req.params.id })
+    local post = Blog.find_by({ id = req.params.id })
+    self.title = post.title
+    self.body = post.body
+    return template("features/blog/show.elua", self)
 end
 
 -- GET /blogs/new html form for new resource
 function BlogController:new()
-    self.title = "My Page"
-    self.user = "John"
-    self.items = { "Apple", "Banana", "Cherry" }
-
-    return template("features/blog/view.elua", self)
+    return template("features/blog/new.elua", self)
 end
 
 -- POST /blogs
 function BlogController:create(req)
-    Blog.create(req.body)
+    return Blog.create(req.body)
 end
 
 -- GET /blogs/:id/edit html form for edit resource

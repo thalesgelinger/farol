@@ -1,5 +1,6 @@
 local socket = require("socket")
 local cjson = require "cjson"
+local log = require "server.log"
 
 local Farol = {
     routes = {
@@ -183,6 +184,7 @@ function Farol:listen(port)
 
 
             local method, path = request:match("^(%w+)%s+(%S+)")
+            log.info("DEBUG", method .. path)
 
             local matched_route, params = self:match_route(method, path)
             req.params = params

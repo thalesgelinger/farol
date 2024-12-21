@@ -1,0 +1,53 @@
+<html>
+<head>
+    <title>Blog</title>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  // Intercept form submissions globally
+  const forms = document.querySelectorAll('form');
+  
+  forms.forEach(form => {
+    form.addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      const formData = new FormData(this);  // Get the form data
+      const data = {};
+      
+      // Convert FormData to a plain JavaScript object
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      // Send data as JSON
+      fetch(form.action, {
+        method: form.method || 'POST', // Use the form's method, defaulting to POST
+        headers: {
+          'Content-Type': 'application/json', // Tell Rails we are sending JSON
+        },
+        body: JSON.stringify(data), // Send the form data as JSON
+      }).then((resp) => {
+          return resp.json()
+      }).then ((resp) => {
+          // TODO: make it better please
+          window.location.href = window.location.href.replace("new", resp.id)
+      }) 
+    });
+  });
+});
+
+    </script>
+</head>
+<body>
+    <h1>New Post</h1>
+    <form action="/blogs" method="POST">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" placeholder="Enter the title" required><br><br>
+      
+      <label for="body">Body:</label>
+      <textarea id="body" name="body" placeholder="Enter the body text" rows="4" cols="50" required></textarea><br><br>
+      
+      <button type="submit">Submit</button>
+    </form>
+    <a href="/blogs">Back to posts</a>
+</body>
+</html>
