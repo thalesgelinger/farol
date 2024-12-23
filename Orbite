@@ -1,0 +1,10 @@
+return {
+    name = "farol",
+    version = "1.0.0",
+    description = "Lua web framework",
+    dependencies = {
+        { "lunarmodules/luasocket", path = "/Users/tgelin01/.luarocks/lib/lua/5.1/socket" }
+    },
+    author = "Thales Gelinger",
+    license = "MIT"
+}

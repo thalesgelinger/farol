@@ -1,0 +1,14 @@
+return {
+    name = "farol-template",
+    version = "1.0.0",
+    description = "",
+    main = "app.lua",
+    scripts = {
+        test = "echo \"Error: no test specified\" && exit 1"
+    },
+    dependencies = {
+        { "thalesglinger/farol", path = "/Users/tgelin01/Projects/farol" },
+    },
+    author = "",
+    license = "ISC"
+}
