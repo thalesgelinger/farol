@@ -1,0 +1,1 @@
+![DALL·E 2025-01-06 15 58 49 - A minimalist and flat logo design for a web development framework named 'Farol', inspired by the concept of a lighthouse (Farol means lighthouse in Po](https://github.com/user-attachments/assets/dedde916-e759-4b0b-a7d1-9998ad9f7923)
